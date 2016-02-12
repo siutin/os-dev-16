@@ -1,6 +1,5 @@
 ASMFLAGS = -f bin
 
-OWN_USER = martin
 BUILD_PATH = build/
 OUTPUT_FILENAME = os
 
@@ -29,17 +28,13 @@ install:cpy.c
 clean:
 	rm -rf build/*
 
-img: all
-	dd status=noxfer conv=notrunc if=$(dev) of=$(BUILD_PATH)/$(OUTPUT_FILENAME).img bs=1024 count=1024
-	chown $(OWN_USER) $(BUILD_PATH)/$(OUTPUT_FILENAME).img
-
-vdi: img
+vdi: all
 	VBoxManage convertdd $(BUILD_PATH)/$(OUTPUT_FILENAME).img $(BUILD_PATH)/$(OUTPUT_FILENAME).vdi
 
-vmdk: img
+vmdk: all
 	qemu-img convert $(BUILD_PATH)/$(OUTPUT_FILENAME).img -O vmdk $(BUILD_PATH)/$(OUTPUT_FILENAME).vmdk
 
-run-qemu: img
+run-qemu: all
 	$(QEMU) -hda $(BUILD_PATH)/$(OUTPUT_FILENAME).img
 
 run-vmware: vmdk
