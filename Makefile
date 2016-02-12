@@ -1,4 +1,3 @@
-dev = /dev/sde
 ASMFLAGS = -f bin
 
 OWN_USER = martin
@@ -13,8 +12,9 @@ modules = bootloader os about vidmem echo help exit reg
 objects = $(modules:%=$(BUILD_PATH)/%)
 
 all: prepare $(modules) install
-	cpy $(dev) $(objects)
-	@echo "Done...Written to disk"
+	dd status=noxfer conv=notrunc if=/dev/zero of=$(BUILD_PATH)/$(OUTPUT_FILENAME).img bs=1024 count=1024
+	cpy $(BUILD_PATH)/$(OUTPUT_FILENAME).img $(objects)
+	@echo "Done...Written to image"
 
 $(modules): %: %.asm
 	nasm $(ASMFLAGS) $*.asm -o $(BUILD_PATH)/$*
@@ -23,8 +23,8 @@ prepare:
 	mkdir -p $(BUILD_PATH)
 
 install:cpy.c
-	cc cpy.c -o cpy
-	cp cpy /bin/cpy
+	cc cpy.c -o $(BUILD_PATH)/cpy
+	cp $(BUILD_PATH)/cpy /bin/cpy
 
 clean:
 	rm -rf build/*
