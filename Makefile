@@ -12,12 +12,15 @@ QEMU = qemu-system-i386
 modules = bootloader os about vidmem echo help exit reg
 objects = $(modules:%=$(BUILD_PATH)/%)
 
-all: $(modules) install
+all: prepare $(modules) install
 	cpy $(dev) $(objects)
 	@echo "Done...Written to disk"
 
 $(modules): %: %.asm
 	nasm $(ASMFLAGS) $*.asm -o $(BUILD_PATH)/$*
+
+prepare:
+	mkdir -p $(BUILD_PATH)
 
 install:cpy.c
 	cc cpy.c -o cpy
@@ -27,7 +30,6 @@ clean:
 	rm -rf build/*
 
 img: all
-	mkdir -p $(BUILD_PATH)
 	dd status=noxfer conv=notrunc if=$(dev) of=$(BUILD_PATH)/$(OUTPUT_FILENAME).img bs=1024 count=1024
 	chown $(OWN_USER) $(BUILD_PATH)/$(OUTPUT_FILENAME).img
 
